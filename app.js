@@ -4,6 +4,7 @@ const io = require("socket.io")(http)
 
 const PORT = process.env.PORT || 5000
 const userList = []
+const roomList = []
 
 io.on("connection", (socket) => {
     socket.on("disconnect", function () {
@@ -22,6 +23,14 @@ io.on("connection", (socket) => {
             userList.push(users)
         }
         io.emit("users", { type: "users", list: userList })
+    })
+
+    socket.on("rooms", (rooms) => {
+        console.log("Room: " + JSON.stringify(rooms))
+        if (!roomList.includes(rooms)) {
+            roomList.push(rooms)
+        }
+        io.emit("rooms", { type: "rooms", list: roomList })
     })
 })
 
