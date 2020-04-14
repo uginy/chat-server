@@ -4,7 +4,6 @@ const io = require("socket.io")(http)
 
 const PORT = process.env.PORT || 5000
 const userList = []
-const roomList = []
 
 io.on("connection", (socket) => {
     socket.on("remove-user", (user) => {
@@ -13,32 +12,25 @@ io.on("connection", (socket) => {
     })
 
     socket.on("message", (message) => {
-        // console.log("Message Received: " + JSON.stringify(message))
         io.emit("message", { type: "new-message", text: message })
     })
 
-    socket.on("users", (users) => {
-        socket.user_name = users
-        console.log("User: ", users)
-        if (!userList.includes(users)) {
-            userList.push(users)
-        }
+    socket.on("add-user", (user) => {
+        socket.user_name = user
+        userList.push(user)
+        console.log("Added User: ", user)
+        console.log("UserList: ", userList)
         io.emit("users", { type: "users", list: userList })
     })
 
-    socket.on("room", (room) => {
-        socket.join(room)
-    })
-
-    socket.on("rooms", (rooms) => {
-        if (!roomList.includes(rooms)) {
-            roomList.push(rooms)
-        }
-        io.emit("rooms", { type: "rooms", list: roomList })
+    socket.on("users", () => {
+        io.emit("users", { type: "users", list: userList })
     })
 
     socket.on("disconnect", () => {
-        userList.splice(userList.indexOf(socket.user_name), 1)
+        if (userList.indexOf(socket.user_name) > -1) {
+            userList.splice(userList.indexOf(socket.user_name), 1)
+        }
         io.emit("users", { type: "users", list: userList })
     })
 })
