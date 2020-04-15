@@ -28,7 +28,9 @@ io.on("connection", (socket) => {
 
     socket.on("add-user", (user) => {
         socket.user_name = user
-        userList.push(user)
+        if (userList.indexOf(user) === -1) {
+            userList.push(user)
+        }
         console.log("Added User: ", user)
         console.log("UserList: ", userList)
         userEmit(userList)
