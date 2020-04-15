@@ -1,10 +1,12 @@
 const app = require("express")()
 const http = require("http").Server(app)
 const io = require("socket.io")(http)
+const cors = require("cors")
 
 const PORT = process.env.PORT || 5000
 const userList = []
 
+app.use(cors())
 io.on("connection", (socket) => {
     socket.on("remove-user", (user) => {
         userList.splice(userList.indexOf(user), 1)
