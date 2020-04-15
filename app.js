@@ -8,10 +8,19 @@ const userList = []
 io.on("connection", (socket) => {
     socket.on("remove-user", (user) => {
         userList.splice(userList.indexOf(user), 1)
-        io.emit("users", { type: "users", list: userList })
+        userEmit(userList)
+    })
+
+    socket.on("update-user", ({ old: oldUser, new: newUser }) => {
+        const findedIndex = userList.indexOf(oldUser) > -1 ? userList.indexOf(oldUser) : null
+        if (findedIndex !== null) {
+            userList[findedIndex] = newUser
+        }
+        userEmit(userList)
     })
 
     socket.on("message", (message) => {
+        console.log("Messages", message)
         io.emit("message", { type: "new-message", text: message })
     })
 
@@ -20,19 +29,23 @@ io.on("connection", (socket) => {
         userList.push(user)
         console.log("Added User: ", user)
         console.log("UserList: ", userList)
-        io.emit("users", { type: "users", list: userList })
+        userEmit(userList)
     })
 
     socket.on("users", () => {
-        io.emit("users", { type: "users", list: userList })
+        userEmit(userList)
     })
 
     socket.on("disconnect", () => {
         if (userList.indexOf(socket.user_name) > -1) {
             userList.splice(userList.indexOf(socket.user_name), 1)
         }
-        io.emit("users", { type: "users", list: userList })
+        userEmit(userList)
     })
+
+    const userEmit = (users) => {
+        io.emit("users", { type: "users", list: users })
+    }
 })
 
 http.listen(PORT, () => {
